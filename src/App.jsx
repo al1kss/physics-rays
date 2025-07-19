@@ -9,7 +9,6 @@ function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
 
-  // Auto-hide tooltip after 10 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowTooltip(false);

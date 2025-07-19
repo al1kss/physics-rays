@@ -1,6 +1,5 @@
 import { MATERIALS, PHYSICS, OBJECT } from './constants.js';
 
-// Vector operations
 export const Vector = {
   create: (x, y) => ({ x, y }),
   add: (v1, v2) => ({ x: v1.x + v2.x, y: v1.y + v2.y }),
@@ -18,7 +17,6 @@ export const Vector = {
   }
 };
 
-// Convert angle to direction vector
 export function angleToDirection(angleDegrees) {
   const angleRad = (angleDegrees * Math.PI) / 180;
   return Vector.normalize({
@@ -92,7 +90,7 @@ export function fresnelReflectance(n1, n2, cosTheta1) {
   const sinTheta1 = Math.sqrt(1 - cosTheta1 * cosTheta1);
   const sinTheta2 = (n1 / n2) * sinTheta1;
 
-  if (sinTheta2 > 1) return 1; // Total internal reflection
+  if (sinTheta2 > 1) return 1;
 
   const cosTheta2 = Math.sqrt(1 - sinTheta2 * sinTheta2);
 
@@ -126,7 +124,6 @@ export function angleBetweenVectors(v1, v2) {
   return Math.acos(clampedDot) * 180 / Math.PI;
 }
 
-// Main ray tracing function
 export function traceRay(startPoint, direction, currentMaterial, targetMaterial, intensity = 1.0, bounceCount = 0) {
   if (bounceCount >= PHYSICS.MAX_BOUNCES || intensity < PHYSICS.MIN_INTENSITY) {
     return [];
@@ -143,7 +140,7 @@ export function traceRay(startPoint, direction, currentMaterial, targetMaterial,
   const intersection = lineRectIntersection(startPoint, direction, materialRect);
 
   if (!intersection) {
-    // Ray misses object, continues to edge of canvas
+    // when ray misses object, continues to edge of canvas
     const endPoint = Vector.add(startPoint, Vector.multiply(direction, 1000));
     rays.push({
       start: startPoint,
@@ -166,11 +163,10 @@ export function traceRay(startPoint, direction, currentMaterial, targetMaterial,
   // Determine ray type based on current material and bounce count
   let rayType = 'incident';
   if (bounceCount > 0) {
-    // If we're inside a material (not air), it's still refracted light
+    // If we're inside a material (not air) its still refracted light
     rayType = currentMaterial === 'air' ? 'incident' : 'refracted';
   }
 
-  // Add incident ray segment
   rays.push({
     start: startPoint,
     end: point,
@@ -181,7 +177,6 @@ export function traceRay(startPoint, direction, currentMaterial, targetMaterial,
     bounceCount
   });
 
-  // Special case: if both materials are air, ray just continues straight
   if (currentMaterial === 'air' && targetMaterial === 'air') {
     const continuedRays = traceRay(point, direction, targetMaterial, 'air',
                                   intensity * 0.99, bounceCount + 1);
@@ -201,7 +196,6 @@ export function traceRay(startPoint, direction, currentMaterial, targetMaterial,
     return rays;
   }
 
-  // Now handle real material interfaces
   const n1 = MATERIALS[currentMaterial].refractiveIndex;
   const n2 = MATERIALS[targetMaterial].refractiveIndex;
   const cosTheta1 = -Vector.dot(direction, normal);
@@ -212,7 +206,6 @@ export function traceRay(startPoint, direction, currentMaterial, targetMaterial,
   const isTotalInternalReflection = sinTheta2Sq > 1;
 
   if (isTotalInternalReflection) {
-    // Total internal reflection - but if we're inside material, it should still be blue
     const reflectedDirection = Vector.reflect(direction, normal);
     const reflectedRays = traceRay(point, reflectedDirection, currentMaterial, currentMaterial,
                                   intensity * 0.98, bounceCount + 1);
@@ -241,20 +234,17 @@ export function traceRay(startPoint, direction, currentMaterial, targetMaterial,
     if ((1 - reflectance) > 0.01) {
       const refractedDirection = snellsLaw(direction, normal, n1, n2);
       if (refractedDirection) {
-        // Determine the next material the ray will encounter
         let nextMaterial;
         if (currentMaterial === 'air') {
-          // Ray entering the material
-          nextMaterial = 'air'; // Will exit back to air when it hits the other side
+          nextMaterial = 'air';
         } else {
-          // Ray inside material, will exit to air
           nextMaterial = 'air';
         }
 
         const refractedRays = traceRay(point, refractedDirection, targetMaterial, nextMaterial,
                                       intensity * (1 - reflectance) +0.05, bounceCount + 1);
         refractedRays.forEach(ray => {
-          ray.type = 'refracted'; // Always blue for refracted rays
+          ray.type = 'refracted';
         });
         rays.push(...refractedRays);
       }

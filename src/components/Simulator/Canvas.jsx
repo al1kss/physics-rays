@@ -9,7 +9,6 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
   const [rays, setRays] = useState([]);
   const [showAnnotations, setShowAnnotations] = useState(true);
 
-  // Calculate rays when parameters change
   const calculateRays = useCallback(() => {
     if (!isRunning) return;
 
@@ -22,7 +21,6 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
     calculateRays();
   }, [calculateRays]);
 
-  // Canvas drawing function
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -30,20 +28,15 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
 
-    // Draw background
     ctx.fillStyle = CANVAS.BACKGROUND_COLOR;
     ctx.fillRect(0, 0, CANVAS.WIDTH, CANVAS.HEIGHT);
 
-    // Draw grid
     drawGrid(ctx);
 
-    // Draw material object
     drawMaterial(ctx);
 
-    // Draw laser source
     drawLaserSource(ctx);
 
-    // Draw rays
     if (isRunning && rays.length > 0) {
       drawRays(ctx);
 
@@ -52,12 +45,10 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
       }
     }
 
-    // Draw normal lines
     drawNormals(ctx);
 
   }, [laserPosition, rays, material, isRunning, showAnnotations]);
 
-  // Draw grid
   const drawGrid = (ctx) => {
     ctx.strokeStyle = CANVAS.GRID_COLOR;
     ctx.lineWidth = 0.5;
@@ -77,20 +68,16 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
     }
   };
 
-  // Draw material object
   const drawMaterial = (ctx) => {
     const mat = MATERIALS[material];
 
-    // Fill
     ctx.fillStyle = mat.color;
     ctx.fillRect(OBJECT.X, OBJECT.Y, OBJECT.WIDTH, OBJECT.HEIGHT);
 
-    // Stroke
     ctx.strokeStyle = mat.strokeColor;
     ctx.lineWidth = 2;
     ctx.strokeRect(OBJECT.X, OBJECT.Y, OBJECT.WIDTH, OBJECT.HEIGHT);
 
-    // Label
     ctx.fillStyle = '#ffffff';
     ctx.font = '16px Arial';
     ctx.textAlign = 'center';
@@ -101,14 +88,12 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
     );
   };
 
-  // Draw laser source
   const drawLaserSource = (ctx) => {
     ctx.fillStyle = CANVAS.LASER_COLOR;
     ctx.beginPath();
     ctx.arc(laserPosition.x, laserPosition.y, 8, 0, 2 * Math.PI);
     ctx.fill();
 
-    // Draw direction indicator
     const direction = angleToDirection(laserAngle);
     const endPoint = Vector.add(laserPosition, Vector.multiply(direction, 30));
 
@@ -119,7 +104,6 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
     ctx.lineTo(endPoint.x, endPoint.y);
     ctx.stroke();
 
-    // Arrow head
     const arrowSize = 10;
     const arrowAngle = Math.atan2(direction.y, direction.x);
 
@@ -137,7 +121,6 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
     ctx.stroke();
   };
 
-  // Draw rays
   const drawRays = (ctx) => {
     rays.forEach((ray, index) => {
       let color;
@@ -168,11 +151,9 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
     });
   };
 
-  // Draw normal lines (only at the first incident point)
   const drawNormals = (ctx) => {
     if (!isRunning || rays.length === 0) return;
 
-    // Find the first incident ray that actually hits the material
     const firstIncidentRay = rays.find(ray =>
       ray.type === 'incident' &&
       ray.incidentAngle !== null &&
@@ -184,7 +165,6 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
       const hitPoint = firstIncidentRay.end;
       const normalLength = 50;
 
-      // Determine which surface was hit to draw correct normal
       let normalStart, normalEnd;
 
       if (Math.abs(hitPoint.y - OBJECT.Y) < 2) { // Top surface
@@ -200,7 +180,6 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
         normalStart = { x: hitPoint.x - normalLength, y: hitPoint.y };
         normalEnd = { x: hitPoint.x + normalLength, y: hitPoint.y };
       } else {
-        // Default to vertical normal if unclear
         normalStart = { x: hitPoint.x, y: hitPoint.y - normalLength };
         normalEnd = { x: hitPoint.x, y: hitPoint.y + normalLength };
       }
@@ -209,13 +188,12 @@ const SimulationCanvas = ({ material, isRunning, laserAngle, onAngleChange }) =>
       ctx.lineWidth = 2;
       ctx.setLineDash([8, 4]);
 
-      // Draw normal line
+      // this is normal line
       ctx.beginPath();
       ctx.moveTo(normalStart.x, normalStart.y);
       ctx.lineTo(normalEnd.x, normalEnd.y);
       ctx.stroke();
 
-      // Add normal label
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.font = '11px Arial';
       ctx.textAlign = 'center';
