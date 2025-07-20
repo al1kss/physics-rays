@@ -347,6 +347,17 @@ body {
   font-weight: 700;
 }
 
+.subtext p {
+  font-size: 0.8rem;
+  color: #cccccc;
+  margin-top: 5px;
+  padding-top: 5px;
+}
+
+hr.solid {
+  border-top: 0px solid #bbb;
+}
+
 @keyframes tooltipSlideIn {
   0% {
     transform: translateX(100%) translateY(20px);

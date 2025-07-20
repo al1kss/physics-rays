@@ -41,21 +41,21 @@ function App() {
 
         <div className="controls-section">
           <MaterialSelector
-            selectedMaterial={selectedMaterial}
-            onMaterialChange={setSelectedMaterial}
+              selectedMaterial={selectedMaterial}
+              onMaterialChange={setSelectedMaterial}
           />
 
           <LaserControls
-            angle={laserAngle}
-            onAngleChange={setLaserAngle}
-            isRunning={isRunning}
-            onToggleRunning={handleToggleRunning}
-            onReset={handleReset}
+              angle={laserAngle}
+              onAngleChange={setLaserAngle}
+              isRunning={isRunning}
+              onToggleRunning={handleToggleRunning}
+              onReset={handleReset}
           />
         </div>
 
         <div className="legend-section">
-          <Legend />
+          <Legend/>
         </div>
 
         <div className="instructions">
@@ -64,13 +64,17 @@ function App() {
           <p>• Use angle input for precision</p>
           <p>• Change materials to see different effects</p>
         </div>
+        <div className="subtext">
+          <hr className="solid"/>
+          <p>Built with passion by Alikhan Abdykaimov 🌿</p>
+        </div>
       </div>
 
       {/* Main Simulation Area */}
       <div className="main-simulation">
         <SimulationCanvas
-          material={selectedMaterial}
-          isRunning={isRunning}
+            material={selectedMaterial}
+            isRunning={isRunning}
           laserAngle={laserAngle}
           onAngleChange={setLaserAngle}
         />
